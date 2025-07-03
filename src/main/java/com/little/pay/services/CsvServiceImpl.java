@@ -34,7 +34,7 @@ public class CsvServiceImpl implements CsvService {
   @Override
   public List<TapRecord> readCsv(final String fileName) {
     final List<TapRecord> tapRecordList = new ArrayList<>();
-    try (final CSVReader reader = new CSVReader(new FileReader(getFile(fileName)))) {
+    try (final CSVReader reader = new CSVReader(new FileReader(getFile(fileName, false)))) {
       reader.skip(1); // skip the header
       while (reader.peek() != null) {
         final String[] row = reader.readNext();
@@ -56,7 +56,7 @@ public class CsvServiceImpl implements CsvService {
   }
 
   public void writeCsv(final List<Trip> tripList, final String fileName) {
-    final File file = getFile(fileName);
+    final File file = getFile(fileName, true);
 
     try (final CSVWriter writer = new CSVWriter(new FileWriter(file),
             CSVWriter.DEFAULT_SEPARATOR,
@@ -94,10 +94,17 @@ public class CsvServiceImpl implements CsvService {
     return processedRow;
   }
 
-  private File getFile(final String fileName) {
+  private File getFile(final String fileName, final boolean createFileNotExits) {
     final File file = new File(fileName);
     if (file.exists()) {
       return file;
+    } else if (createFileNotExits) {
+      try {
+        file.createNewFile();
+        return new File(fileName);
+      } catch (final Exception ex) {
+        throw new LittlePayException("Failed to create file: " + fileName);
+      }
     } else {
       throw new LittlePayFileNotFoundException("File not found for " + fileName);
     }
