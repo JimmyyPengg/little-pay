@@ -10,12 +10,15 @@ import com.little.pay.services.TripServiceImpl;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 public class Main {
   public static void main(String[] args) {
-    final String inputFile = args.length == 2 ? args[0] : "input.csv";
-    final String outputFile = args.length == 2 ? args[1] : "output.csv";
+    Instant start = Instant.now();
+    final String inputFile = args.length == 2 ? args[0] : "src/main/resources/input.csv";
+    final String outputFile = args.length == 2 ? args[1] : "src/main/resources/output.csv";
 
     final ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
     final CsvService csvService = context.getBean(CsvServiceImpl.class);
@@ -24,5 +27,7 @@ public class Main {
     final List<TapRecord> tapRecordList = csvService.readCsv(inputFile);
     final List<Trip> tripList = tripService.process(tapRecordList);
     csvService.writeCsv(tripList, outputFile);
+    Instant end = Instant.now();
+    System.out.println(String.format("Finish processing within: %d ms", Duration.between(start, end).getNano()/1000000));
   }
 }
