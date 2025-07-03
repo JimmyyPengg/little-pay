@@ -1,5 +1,5 @@
 # Public transportation tap on-off hypothetical system
-***
+
 # How to run
 1. Clone the repository:<br> `git clone https://github.com/JimmyyPengg/little-pay.git`
 2. Go to the project:<br> `cd <path-to-the-project>/little-pay`
@@ -11,7 +11,6 @@ Note: If you want to run the project with custom input csv and output csv, you c
 Also, **both input and output csv file path need to be provided, the first argument must be the input csv and the second argument must be the output csv**<br>
 `mvn exec:java -Dexec.mainClass=com.little.pay.Main -Dexec.args="/Users/<username>/Desktop/input.csv /Users/<username>/Desktop/output.csv"`
 
-***
 # Assumptions
 This code can only run correctly under the following assumptions:
  - There are only three stop id can be used in the input.csv: **Stop1**, **Stop2** and **Stop3**

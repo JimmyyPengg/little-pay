@@ -20,8 +20,10 @@ public class PriceInquiryServiceImpl implements PriceInquiryService {
   }
 
   @Override
-  public BigDecimal checkPrice(final String beginStop, final String endStop) {
-    final String tripKey = beginStop.compareTo(endStop) < 0 ? (beginStop + "-" + endStop) : (endStop + "-" + beginStop);
+  public BigDecimal checkPrice(final String startStop, final String endStop) {
+    // After the comparison for stop id, no matter it is (from Stop1 to Stop2) or (from Stop2 to Stop1),
+    // they are all translated into Stop1-Stop2, in this case, we can find the corresponding price.
+    final String tripKey = startStop.compareTo(endStop) < 0 ? (startStop + "-" + endStop) : (endStop + "-" + startStop);
     return price.get(tripKey);
   }
 }
