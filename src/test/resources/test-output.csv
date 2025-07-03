@@ -1,0 +1,2 @@
+Started, Finished, DurationSecs, FromStopId, ToStopId, ChargeAmount, CompanyId, BusId, PAN, Status
+03-07-2025 23:32:47, 03-07-2025 23:42:47, 600, Stop000, Stop111, 10.00, CompanyAAA, Bus110, 5500005555551239, COMPLETED

@@ -7,6 +7,7 @@ import com.little.pay.exceptions.LittlePayException;
 import com.little.pay.exceptions.LittlePayFileNotFoundException;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -56,18 +58,20 @@ public class CsvServiceImpl implements CsvService {
   public void writeCsv(final List<Trip> tripList, final String fileName) {
     final File file = getFile(fileName);
 
-    try (final CSVWriter writer = new CSVWriter(new FileWriter(file))) {
-      List<String[]> content = new ArrayList<>();
-      content.add(HEADER);
-      content.addAll(tripList.stream().map(this::toCsvRow).toList());
-      writer.writeAll(content);
+    try (final CSVWriter writer = new CSVWriter(new FileWriter(file),
+            CSVWriter.DEFAULT_SEPARATOR,
+            CSVWriter.NO_QUOTE_CHARACTER,
+            CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+            CSVWriter.DEFAULT_LINE_END)) {
+      writer.writeNext(processRow(HEADER));
+      tripList.stream().map(this::toCsvRow).forEach(tripRow -> writer.writeNext(processRow(tripRow)));
     }
     catch (final Exception ex) {
       throw new LittlePayException("Failed to write content into csv.", ex);
     }
   }
 
-  public String[] toCsvRow(final Trip trip) {
+  private String[] toCsvRow(final Trip trip) {
     return new String[] {
             trip.getStarted().map(started -> started.format(FORMATTER)).orElse("null"),
             trip.getFinished().map(finished -> finished.format(FORMATTER)).orElse("null"),
@@ -82,21 +86,20 @@ public class CsvServiceImpl implements CsvService {
     };
   }
 
+  private String[] processRow(final String[] row) {
+    final String[] processedRow = new String[row.length];
+    for (int i = 0; i < row.length; i++) {
+      processedRow[i] = i == 0 ? row[i] : StringUtils.SPACE + row[i];
+    }
+    return processedRow;
+  }
+
   private File getFile(final String fileName) {
-    try {
-      final ClassPathResource resource = new ClassPathResource(fileName);
-      if (resource.exists()) {
-        return resource.getFile();
-      } else {
-        final File file = new File(fileName);
-        if (file.exists()) {
-          return file;
-        } else {
-          throw new LittlePayFileNotFoundException("File not found for " + fileName);
-        }
-      }
-    } catch (final IOException ioException) {
-      throw new LittlePayException("Failed to read file from " + fileName, ioException);
+    final File file = new File(fileName);
+    if (file.exists()) {
+      return file;
+    } else {
+      throw new LittlePayFileNotFoundException("File not found for " + fileName);
     }
   }
 
